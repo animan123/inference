@@ -17,19 +17,25 @@ def get_kb (data):
 	return cnfs
 
 class indexed_kb:
-	def __init__ (self):
-		self.true = {}
-		self.false = {}
-		self.all = []
-		self.size = 0
-		self.current = 0
+	def __init__ (self, another=None):
+		if another is None:
+			self.true = {}
+			self.false = {}
+			self.all = []
+			self.size = 0
+			self.current = 0
+		else:
+			self.true = another.true
+			self.false = another.false
+			self.all = another.all
+			self.size = another.size
+			self.current = another.current
 
 	def empty (self):
 		return (self.size == 0)
 
 	def pop (self):
 		y = self.all [self.current]
-		self.all [self.current] = None
 		self.current += 1
 		self.size -= 1
 		return y
@@ -69,8 +75,6 @@ class indexed_kb:
 		ret = True
 		for i in indices:
 			y = self.all [i]
-			if y is None:
-				continue
 			if self.match (x, y):
 				return True
 		return False
@@ -81,8 +85,6 @@ class indexed_kb:
 		indices = self.false[name]
 		for i in indices:
 			y = self.all [i]
-			if y is  None:
-				continue
 			if self.match (x, y):
 				return True
 		return False
@@ -99,11 +101,14 @@ class indexed_kb:
 					return True
 		return False
 
-	def add (self, x, occur_check=False):
+	def add (self, x, occur_check=False, verbose=False):
 		x = sorted (x, key=lambda x: x["name"])
 		if occur_check and self.occur_check (x):
-			print "Not adding", x
+			if verbose:
+				print "Not adding", x
 			return
+		if verbose:
+			print "Adding", x
 		self.all.append (x)
 		self.size += 1
 		index = len(self.all) - 1

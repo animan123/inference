@@ -47,7 +47,16 @@ class term:
 				)
 			self.op = 'or'
 			self.args[0].truth =  not self.args[0].truth
-		
+
+		while self.op is None and self.pred is None:
+			if len(self.args) == 1:
+				self.truth = (self.truth == self.args[0].truth)
+				self.op = self.args[0].op
+				self.pred = self.args[0].pred
+				self.args = self.args[0].args
+			else:
+				raise Exception ("Empty term has more than 1 child")
+
 		if not self.truth:
 			if self.op == 'and':
 				self.truth = True

@@ -28,7 +28,7 @@ def unify_var (var, x, sub):
 	return sub
 
 def unify (predicate1, predicate2):
-	if predicate1["name"] != predicate2["name"] or len(predicate1["args"]) != len(predicate2["args"]):
+	if predicate1["name"] != predicate2["name"] or len(predicate1["args"]) != len(predicate2["args"]) or (predicate1["truth"] == predicate2["truth"]):
 		return None
 	args1 = predicate1["args"]
 	args2 = predicate2["args"]

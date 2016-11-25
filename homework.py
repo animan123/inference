@@ -1,5 +1,6 @@
-from kb import get_kb, get_indexed_kb
+from kb import get_indexed_kb, indexed_kb
 from resolver import resolve
+import copy
 
 if __name__ == '__main__':
 	with open("simple_input", "r") as f:
@@ -11,4 +12,4 @@ if __name__ == '__main__':
 	kb = get_indexed_kb (data)
 	
 	for query in queries:
-		resolve (query, kb)
+		print resolve (query, copy.deepcopy(kb))
