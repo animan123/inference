@@ -98,13 +98,26 @@ class term:
 			arg.show (c=c+4)
 		print ' '*c, "Predicate: ", self.pred
 
+	def _get_pred (self, x):
+		ret = x.pred
+		ret.update ({"truth": x.truth})
+		return ret
+
+	def _get_preds (self, x):
+		if x.op is None:
+			return [self._get_pred(x)]
+		elif x.op == 'or':
+			return [self._get_pred(y) for y in x.args]
+		else:
+			raise Exception ("Resolved clause is neither or op nor None op")
+
 	def get_cnf (self):
 		cnf = []
 		if self.op != 'and':
-			cnf.append(self)
+			cnf.append(self._get_preds(self))
 			return cnf
 		for arg in self.args:
-			cnf = cnf.append (arg)
+			cnf.append (self._get_preds(arg))
 		return cnf
 
 if __name__ == '__main__':

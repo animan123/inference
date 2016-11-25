@@ -85,13 +85,12 @@ def get_cnf (s):
 
 if __name__ == '__main__':
 	#s = '((AA(x, y)|(~BB(p, q)))=>(CC(x)|DD(p)))'
-	#s = '(~(~(~(~(~A(x))))))'
+	s = '(~(~(~(~(~A(x))))))'
 	#s = '((A(x)=>B(x))=>C(x))'
-	s = 'Q(Alice, Bob)'
+	#s = 'Q(Alice, Bob)'
 	s = preprocess (s)
-	print s
 	t = process (s)
 	t.simplify ()
 	cnf = t.get_cnf ()
 	for x in cnf:
-		x.show ()
+		print x

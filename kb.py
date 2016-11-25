@@ -1,5 +1,5 @@
 from input import get_cnf
-from unify import isVariable
+from utils import isVariable, isConstant
 
 def get_kb (data):
 	cnfs = []
@@ -10,17 +10,112 @@ def get_kb (data):
 	counter = 0
 	for i, t in enumerate (cnfs):
 		counter += 1
-		if t.op is None:
-			for j, var in enumerate (t.pred["args"]):
+		for k, child in enumerate (t):
+			for j, var in enumerate (child):
 				if isVariable (var):
-					t.pred["args"][j] = var + str(counter)
-		elif t.op == 'or':
-			for k, child in enumerate (t.args):
-				if child.op is not None:
-					raise Exception ("Child of or is not None")
-				for j, var in enumerate (child.pred["args"]):
-					if isVariable (var):
-						t.args[k].pred["args"][j] = var + str(counter)
-		else:
-			raise Exception ("Op is neither or nor None")
+					cnfs[i][k][j] = var + str(counter)
 	return cnfs
+
+class indexed_kb:
+	def __init__ (self):
+		self.true = {}
+		self.false = {}
+		self.all = []
+		self.size = 0
+		self.current = 0
+
+	def empty (self):
+		return (self.size == 0)
+
+	def pop (self):
+		y = self.all [self.current]
+		self.all [self.current] = None
+		self.current += 1
+		self.size -= 1
+		return y
+
+	def add_true (self, index, name):
+		if name not in self.true:
+			self.true[name] = []
+		self.true[name].append (index)
+
+	def add_false (self, index, name):
+		if name not in self.false:
+			self.false[name] = []
+		self.false[name].append (index)
+
+	def match_pred (self, p1, p2):
+		if p1["name"] != p2["name"]:
+			return False
+		for arg1, arg2 in zip (p1["args"], p2["args"]):
+			if isVariable (arg1) and isConstant (arg2):
+				return False
+			if isConstant (arg1) and isVariable (arg2):
+				return False
+			if isConstant (arg1) and isConstant (arg2) and arg1 != arg2:
+				return False
+		return True
+
+	def match (self, x, y):
+		for p1, p2 in zip(x, y):
+			if not self.match_pred (p1, p2):
+				return False
+		return True
+
+	def occur_check_pred_truth (self, name, x):
+		if name not in self.true:
+			return False
+		indices = self.true[name]
+		ret = True
+		for i in indices:
+			y = self.all [i]
+			if y is None:
+				continue
+			if self.match (x, y):
+				return True
+		return False
+
+	def occur_check_pred_false (self, name, x):
+		if name not in self.false:
+			return False
+		indices = self.false[name]
+		for i in indices:
+			y = self.all [i]
+			if y is  None:
+				continue
+			if self.match (x, y):
+				return True
+		return False
+
+	def occur_check (self, x):
+		for pred in x:
+			name = pred["name"]
+			truth = pred["truth"]
+			if truth:
+				if self.occur_check_pred_truth (name, x):
+					return True
+			else:
+				if self.occur_check_pred_false (name, x):
+					return True
+		return False
+
+	def add (self, x, occur_check=False):
+		x = sorted (x, key=lambda x: x["name"])
+		if occur_check and self.occur_check (x):
+			print "Not adding", x
+			return
+		self.all.append (x)
+		self.size += 1
+		index = len(self.all) - 1
+		for pred in x:
+			if pred["truth"]:
+				self.add_true (index, pred["name"])
+			else:
+				self.add_false (index, pred["name"])
+
+def get_indexed_kb (data):
+	kb = get_kb (data)
+	ikb = indexed_kb ()
+	for cnf in kb:
+		ikb.add (cnf, occur_check=True)
+	return ikb
