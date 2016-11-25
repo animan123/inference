@@ -1,0 +1,6 @@
+1
+King (John)
+2
+Queen (Mary)
+Husband (Mary, John)
+((Husband (y, x) & Queen(y)) => King(x))

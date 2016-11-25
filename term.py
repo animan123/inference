@@ -62,6 +62,8 @@ class term:
 			arg.simplify ()
 
 		self.merge ()
+		self.cleanup ()
+		self.negation_cleanup ()
 
 	def merge (self):
 		if self.op  != 'or':
@@ -96,14 +98,14 @@ class term:
 			arg.show (c=c+4)
 		print ' '*c, "Predicate: ", self.pred
 
-	def get_cnf (self, cnf=[]):
+	def get_cnf (self):
+		cnf = []
 		if self.op != 'and':
 			cnf.append(self)
 			return cnf
 		for arg in self.args:
-			cnf = arg.get_cnf (cnf)
+			cnf = cnf.append (arg)
 		return cnf
-
 
 if __name__ == '__main__':
 	x = term (pred='x')
