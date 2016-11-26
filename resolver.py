@@ -1,7 +1,7 @@
 from kb import indexed_kb
 from input import get_cnf
 from unify import unify
-from utils import isVariable
+from utils import isVariable, standardize, hasConstants
 import copy
 
 def get_resolved_sentence (x, y, x_pred, y_pred, sub):
@@ -40,12 +40,12 @@ def resolve (query, kb):
 				y = kb.all [index]
 				for y_pred in y:
 					sub = unify (x_pred, y_pred)
-					if sub is not None:
+					if sub is not None and hasConstants(sub):
 						resolved_sentence = get_resolved_sentence (
-							copy.deepcopy(x), 
-							copy.deepcopy(y), 
+							copy.deepcopy(x),
+							copy.deepcopy(y),
 							copy.deepcopy(x_pred),
-							copy.deepcopy(y_pred), 
+							copy.deepcopy(y_pred),
 							sub
 						)
 						if resolved_sentence == []:
@@ -54,7 +54,11 @@ def resolve (query, kb):
 						#print "y: ", y
 						#print "sub: ", sub
 						#print "Resolved: ", resolved_sentence
+						resolved_sentence = standardize (resolved_sentence)
 						tbu.add (resolved_sentence, occur_check=True, verbose=False)
+						#print tbu.size
+						#xxx = input ()
 						#print '\n'
+		x = standardize (x)
 		kb.add (x, occur_check=True)
 	return False

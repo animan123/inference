@@ -3,7 +3,7 @@ from resolver import resolve
 import copy
 
 if __name__ == '__main__':
-	with open("simple_input", "r") as f:
+	with open("input2", "r") as f:
 		raw_data = f.readlines ()
 	raw_data = [x.rstrip() for x in raw_data]
 	number_of_queries = int(raw_data[0])

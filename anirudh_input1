@@ -1,0 +1,11 @@
+2
+Trump (Anirudh)
+Trump (Sita)
+7
+((Man (x) | White (x)) => Trump (x))
+(Indian(x) => (~White(x)))
+(Woman(x) => (~Man(x)))
+Man (Anirudh)
+Indian (Anirudh)
+Woman (Sita)
+Indian (Sita)

@@ -1,0 +1,9 @@
+4
+Kills(Ani,Ani)
+Kills(Ani,Kin)
+Kills(Kin,Ani)
+Kills(Kin,Kin)
+3
+((Loves(x,y) & Loves(y,z))=>Kills(x,z))
+Loves(Ani,Kin)
+Loves(Kin,Ani)
