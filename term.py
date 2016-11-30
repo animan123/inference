@@ -40,14 +40,6 @@ class term:
 			self.args = new_args
 
 	def simplify (self):
-		if self.op == 'imply':
-			if len(self.args) != 2:
-				raise Exception (
-					"Number of operands not equal to 2 for implication"
-				)
-			self.op = 'or'
-			self.args[0].truth =  not self.args[0].truth
-
 		while self.op is None and self.pred is None:
 			if len(self.args) == 1:
 				self.truth = (self.truth == self.args[0].truth)
@@ -56,6 +48,14 @@ class term:
 				self.args = self.args[0].args
 			else:
 				raise Exception ("Empty term has more than 1 child")
+
+		if self.op == 'imply':
+			if len(self.args) != 2:
+				raise Exception (
+					"Number of operands not equal to 2 for implication"
+				)
+			self.op = 'or'
+			self.args[0].truth =  not self.args[0].truth
 
 		if not self.truth:
 			if self.op == 'and':
@@ -118,7 +118,7 @@ class term:
 		elif x.op == 'or':
 			return [self._get_pred(y) for y in x.args]
 		else:
-			raise Exception ("Resolved clause is neither or op nor None op")
+			raise Exception ("Resolved clause is neither or op nor None op nor and")
 
 	def get_cnf (self):
 		cnf = []

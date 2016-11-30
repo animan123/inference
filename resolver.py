@@ -3,6 +3,16 @@ from input import get_cnf
 from unify import unify
 from utils import isVariable, standardize, hasConstants
 import copy
+import time
+
+def isTrue (resolved_sentence):
+	if len(resolved_sentence) != 2:
+		return False
+	a = resolved_sentence[0]
+	b = resolved_sentence[1]
+	if a["name"] == b["name"] and a["args"] == b["args"] and a["truth"] != b["truth"]:
+		return True
+	return False
 
 def get_resolved_sentence (x, y, x_pred, y_pred, sub):
 	x = [xx for xx in x if xx != x_pred]
@@ -27,8 +37,11 @@ def resolve (query, kb):
 	query = cleanup_query (query)
 	query[0]["truth"] = not query[0]["truth"]
 	tbu.add (query, occur_check=True)
-
+	iter = 0
+	#print query
+	start = time.time ()
 	while not tbu.empty ():
+		iter += 1
 		x = tbu.pop ()
 		#print "Popped: ", x
 		for x_pred in x:
@@ -36,11 +49,12 @@ def resolve (query, kb):
 				indices = get_indices (kb.true, x_pred["name"])
 			else:
 				indices = get_indices (kb.false, x_pred["name"])
+			#print "X_pred is ", x_pred, indices
 			for index in indices:
 				y = kb.all [index]
 				for y_pred in y:
 					sub = unify (x_pred, y_pred)
-					if sub is not None and hasConstants(sub):
+					if sub is not None:
 						resolved_sentence = get_resolved_sentence (
 							copy.deepcopy(x),
 							copy.deepcopy(y),
@@ -50,15 +64,22 @@ def resolve (query, kb):
 						)
 						if resolved_sentence == []:
 							return True
-						#print "x: ", x
-						#print "y: ", y
-						#print "sub: ", sub
-						#print "Resolved: ", resolved_sentence
+						if isTrue (resolved_sentence):
+							return False
 						resolved_sentence = standardize (resolved_sentence)
 						tbu.add (resolved_sentence, occur_check=True, verbose=False)
-						#print tbu.size
-						#xxx = input ()
-						#print '\n'
+						#print tbu.size, iter
+						if len(resolved_sentence) > 10000:
+							print "x: ", x
+							print "y: ", y
+							print "sub: ", sub
+							print "Resolved: ", resolved_sentence
+							print tbu.size
+							print '\n'
+							xxx = input ()
+		end = time.time ()
+		if (end - start) > 10:
+			break
 		x = standardize (x)
 		kb.add (x, occur_check=True)
 	return False

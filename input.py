@@ -88,15 +88,18 @@ if __name__ == '__main__':
 	#s = '(~(~(~(~(~A(x))))))'
 	#s = '((A(x)=>B(x))=>C(x))'
 	#s = 'Q(Alice, Bob)'
-	s = '((~(Parent(x,y) & Ancestor(y,z))) | Ancestor(x,z))'
+	#s = '((~(Parent(x,y) & Ancestor(y,z))) | Ancestor(x,z))'
 	#s = '(~(Parent(x,y) & Ancestor(y,z)))'
+	#s =  '(~(Dog(y) => Loves(x,y)))'
+	#s = '((Travel(Santa, Christmas) => Child(x)) & (Present(y) & Give(Santa, y, x)))'
+	s = '(Travel(Santa, Christmas) => (Child(x) & (Present(y) & Give(Santa, y, x))))'
 	s = preprocess (s)
 	t = process (s)
 	#t.show ()
 	t.simplify ()
-	#t.show ()
-
+	t.show ()
+	'''
 	cnf = t.get_cnf ()
 	for x in cnf:
 		print x
-	
+	'''

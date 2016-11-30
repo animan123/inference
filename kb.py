@@ -1,9 +1,12 @@
 from input import get_cnf
 from utils import isVariable, isConstant
+from unify import isSame
+import copy
 
 def get_kb (data):
 	cnfs = []
 	for s in data:
+		#print s
 		new = get_cnf(s)
 		for cnf in new:
 			cnfs.append (cnf)
@@ -44,11 +47,13 @@ class indexed_kb:
 		if name not in self.true:
 			self.true[name] = []
 		self.true[name].append (index)
+		self.true[name] = sorted(self.true[name], key=lambda x: len(self.all[x]))
 
 	def add_false (self, index, name):
 		if name not in self.false:
 			self.false[name] = []
 		self.false[name].append (index)
+		self.false[name] = sorted(self.false[name], key=lambda x: len(self.all[x]))
 
 	def match_pred (self, p1, p2):
 		if p1["name"] != p2["name"]:
@@ -63,6 +68,8 @@ class indexed_kb:
 		return True
 
 	def match (self, x, y):
+		if len(x) != len(y):
+			return False
 		for p1, p2 in zip(x, y):
 			if not self.match_pred (p1, p2):
 				return False
@@ -76,7 +83,13 @@ class indexed_kb:
 		for i in indices:
 			y = self.all [i]
 			if self.match (x, y):
+				#print "Self match with", y
 				return True
+			'''
+			if isSame (copy.deepcopy(x), copy.deepcopy(y)):
+				#print "Is same match with", y
+				return True
+			'''
 		return False
 
 	def occur_check_pred_false (self, name, x):
@@ -86,7 +99,13 @@ class indexed_kb:
 		for i in indices:
 			y = self.all [i]
 			if self.match (x, y):
+				#print "Self match with", y
 				return True
+			'''
+			if isSame (copy.deepcopy(x), copy.deepcopy(y)):
+				#print "Isame match with ", y
+				return True
+			'''
 		return False
 
 	def occur_check (self, x):
@@ -105,10 +124,16 @@ class indexed_kb:
 		x = sorted (x, key=lambda x: x["name"])
 		if occur_check and self.occur_check (x):
 			if verbose:
-				print "Not adding", x
+				print "Not adding"
+				for pred in x:
+					print pred
+				print '\n'
 			return
 		if verbose:
-			print "Adding", x
+			print "Adding"
+			for pred in x:
+				print pred
+			print '\n'
 		self.all.append (x)
 		self.size += 1
 		index = len(self.all) - 1
