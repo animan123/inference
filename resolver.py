@@ -32,7 +32,21 @@ def get_indices (dic, name):
 		return []
 	return dic[name]
 
+def isRecursive (sentence):
+	for x in sentence:
+		for y in sentence:
+			if x["name"] == y["name"] and x["args"] != y["args"] and x["truth"] != y["truth"]:
+				return True
+	return False
+
+def sanity_check (parent, kb, threshold):
+	for index in parent:
+		if parent[index] > threshold and isRecursive (kb.all[index]):
+			return False
+	return True
+
 def resolve (query, kb):
+	threshold = kb.size
 	tbu = indexed_kb ()
 	query = cleanup_query (query)
 	query[0]["truth"] = not query[0]["truth"]
@@ -42,7 +56,9 @@ def resolve (query, kb):
 	start = time.time ()
 	while not tbu.empty ():
 		iter += 1
-		x = tbu.pop ()
+		x, parent = tbu.pop ()
+		if not sanity_check (parent, kb, threshold):
+			continue
 		#print "Popped: ", x
 		for x_pred in x:
 			if not x_pred["truth"]:
@@ -67,8 +83,12 @@ def resolve (query, kb):
 						if isTrue (resolved_sentence):
 							return False
 						resolved_sentence = standardize (resolved_sentence)
-						tbu.add (resolved_sentence, occur_check=True, verbose=False)
-						#print tbu.size, iter
+						new_parent = copy.deepcopy (parent)
+						if index not in new_parent:
+							new_parent[index] = 0
+						new_parent[index] += 1
+						tbu.add (resolved_sentence, new_parent, occur_check=True, verbose=False)
+						print tbu.size, iter
 						if len(resolved_sentence) > 10000:
 							print "x: ", x
 							print "y: ", y
@@ -79,6 +99,7 @@ def resolve (query, kb):
 							xxx = input ()
 		end = time.time ()
 		if (end - start) > 10:
+			print "Breaking out in 10 seconds"
 			break
 		x = standardize (x)
 		kb.add (x, occur_check=True)
